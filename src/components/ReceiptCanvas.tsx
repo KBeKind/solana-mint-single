@@ -49,6 +49,7 @@ const ReceiptCanvas = ({
     // const base64StringDataUrl = theCanvas.toDataURL("image/jpeg", 0.5);
 
     // localStorage.setItem("image", base64StringDataUrl);
+
     theCanvas.toBlob(
       (blob: any) => {
         const newImage = document.createElement("img");

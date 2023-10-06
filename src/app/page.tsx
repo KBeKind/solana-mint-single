@@ -1,18 +1,20 @@
 "use client";
 
 import React from "react";
-import ReceiptForm from "../components/ReceiptForm";
-import ReceiptCanvas from "../components/ReceiptCanvas";
-import { useState } from "react";
+import ReceiptForm from "@/components/ReceiptForm";
+import ReceiptCanvas from "@/components/ReceiptCanvas";
+import { useState, useEffect } from "react";
 import Link from "next/link";
-import ReceiptImageUploader from "../components/ReceiptImageUploader";
+import ReceiptImageUploadForm from "@/components/ReceiptImageUploadForm";
+import ClientUpload from "@/components/ClientUpload";
+import BundlrUpload from "@/components/BundlrUpload";
 
 const Home = () => {
   const [formSubmitted, setFormSubmitted] = useState(false);
   const [textObject, setTextObject] = useState({
-    customer: "Alice",
-    vendor: "Sol Products Inc",
-    description: "Software Engineer",
+    customer: "",
+    vendor: "",
+    description: "",
   });
   const [imageSet, setImageSet] = useState(false);
   const [image, setImage] = useState();
@@ -44,7 +46,7 @@ const Home = () => {
         {imageSet && <img src={image} width="700" height="500"></img>}
       </div>
       <div>
-        <ReceiptImageUploader setFile={setFile} file={file} />
+        <BundlrUpload blob={blob} />
       </div>
     </div>
   );

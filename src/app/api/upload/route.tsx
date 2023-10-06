@@ -1,19 +1,22 @@
-import { NextApiRequest, NextApiResponse } from "next";
-import { bundlrStorage, toMetaplexFile } from "@metaplex-foundation/js";
-import FormDa
+import { writeFile } from "fs/promises";
+import { NextRequest, NextResponse } from "next/server";
 
-async function handler(req: NextApiRequest, res: NextApiResponse) {
-  // Get the image file or blob from the request.
-  const image = req.files?.[0];
+export async function POST(request: NextRequest) {
+  const data = await request.formData();
+  const file: File | null = data.get("file") as unknown as File;
 
-  // Convert the image file or blob to a MetaplexFile object.
-  const metaplexFile = toMetaplexFile(image.buffer, image.name);
+  if (!file) {
+    return NextResponse.json({ success: false });
+  }
 
-  // Upload the MetaplexFile object to Arweave using Metaplex's bundlrStorage.
-  const arweaveUri = await bundlrStorage.upload(metaplexFile);
+  const bytes = await file.arrayBuffer();
+  const buffer = Buffer.from(bytes);
 
-  // Return the Arweave URI to the client.
-  res.status(200).json({ arweaveUri });
+  // With the file data in the buffer, you can do whatever you want with it.
+  // For this, we'll just write it to the filesystem in a new location
+  const path = `/tmp/${file.name}`;
+  await writeFile(path, buffer);
+  console.log(`open ${path} to see the uploaded file`);
+
+  return NextResponse.json({ success: true });
 }
-
-export default handler;
