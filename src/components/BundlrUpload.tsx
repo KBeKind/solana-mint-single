@@ -114,13 +114,26 @@ const BundlrUpload = async ({ blob }: BundlrUploadProps) => {
   // };
 
   //NEED A REAL SIGNER TO RUN THE SIGNER PARTS
-  //const signer: Signer = "";
+
+  const privateKey = process.env.DEV_PRIVATE_KEY;
+  if (!privateKey) throw new Error("SHOP_PRIVATE_KEY not found");
+  const keypair = Keypair.fromSecretKey(base58.decode(privateKey));
+
+  //const signer: Signer =
+
+  // Devnet Bundlr address
+  const BUNDLR_ADDRESS = "https://devnet.bundlr.network";
+  // Mainnet Bundlr address, uncomment if using mainnet
+  // const BUNDLR_ADDRESS = "https://node1.bundlr.network"
+
+  // Connection endpoint, switch to a mainnet RPC if using mainnet
+  const ENDPOINT = clusterApiUrl("devnet");
 
   const bundlerUploaderOptions = {
-    address: "string perhaps url?",
-    timeout: 123423423234, //number for timeout
-    providerUrl: "string parhaps url lol",
-    priceMultiplier: 1, // number i dont know what to put here
+    address: BUNDLR_ADDRESS,
+    timeout: 60000, //number for timeout
+    providerUrl: ENDPOINT,
+    priceMultiplier: 1, // 1 is standard - this payment multiple is a fee to store data ahead of others
     //payer: signer,
   };
 
@@ -139,14 +152,6 @@ const BundlrUpload = async ({ blob }: BundlrUploadProps) => {
   //UPDATE TO UMI FRAMEWORK
 
   // update these variables!
-  // Connection endpoint, switch to a mainnet RPC if using mainnet
-  const ENDPOINT = clusterApiUrl("devnet");
-
-  // Devnet Bundlr address
-  const BUNDLR_ADDRESS = "https://devnet.bundlr.network";
-
-  // Mainnet Bundlr address, uncomment if using mainnet
-  // const BUNDLR_ADDRESS = "https://node1.bundlr.network"
 
   // NFT metadata
   const NFT_NAME = "Golden Ticket";
@@ -159,22 +164,8 @@ const BundlrUpload = async ({ blob }: BundlrUploadProps) => {
 
   async function main() {
     // Get the shop keypair from the environment variable
-    const shopPrivateKey = process.env.SHOP_PRIVATE_KEY;
-    if (!shopPrivateKey) throw new Error("SHOP_PRIVATE_KEY not found");
-    const shopKeypair = Keypair.fromSecretKey(base58.decode(shopPrivateKey));
 
     const connection = new Connection(ENDPOINT);
-
-    const nfts = Metaplex.make(connection, { cluster: "devnet" })
-      .use(keypairIdentity(shopKeypair))
-      .use(
-        bundlrStorage({
-          address: BUNDLR_ADDRESS,
-          providerUrl: ENDPOINT,
-          timeout: 60000,
-        })
-      )
-      .nfts();
 
     const imageBuffer = fs.readFileSync(NFT_IMAGE_PATH);
     const file = toMetaplexFile(imageBuffer, NFT_FILE_NAME);
