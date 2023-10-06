@@ -151,8 +151,6 @@ const BundlrUpload = async ({ blob }: BundlrUploadProps) => {
   const testst = await umi;
   //UPDATE TO UMI FRAMEWORK
 
-  // update these variables!
-
   // NFT metadata
   const NFT_NAME = "Golden Ticket";
   const NFT_SYMBOL = "GOLD";
