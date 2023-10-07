@@ -1,9 +1,12 @@
 import {
   bundlrStorage,
+  IdentitySigner,
   keypairIdentity,
   Metaplex,
-  Signer,
   toMetaplexFile,
+  KeypairSigner,
+  Signer,
+  PublicKey,
 } from "@metaplex-foundation/js";
 import { clusterApiUrl, Connection, Keypair } from "@solana/web3.js";
 import base58 from "bs58";
@@ -14,11 +17,17 @@ import {
   bundlrUploader,
 } from "@metaplex-foundation/umi-uploader-bundlr";
 import { createUmi } from "@metaplex-foundation/umi-bundle-defaults";
+import { createGenericFile, publicKey } from "@metaplex-foundation/umi";
+import { useConnection, useWallet } from "@solana/wallet-adapter-react";
+import { WalletAdapterCompatibleStandardWallet } from "@solana/wallet-adapter-base";
 import {
-  Context,
-  createGenericFile,
-  createGenericFileFromBrowserFile,
-} from "@metaplex-foundation/umi";
+  fromWeb3JsKeypair,
+  fromWeb3JsPublicKey,
+  toWeb3JsPublicKey,
+} from "@metaplex-foundation/umi-web3js-adapters";
+
+const { connection } = useConnection();
+const wallet = useWallet();
 
 dotenv.config();
 
@@ -77,10 +86,10 @@ const BundlrUpload = async ({ blob }: BundlrUploadProps) => {
   // };
 
   const genericFile = createGenericFile(uint8Array, "testImage.jpg", {
-    displayName: "DN",
-    uniqueName: "UN",
-    contentType: "CT",
-    extension: "EX",
+    displayName: "My Test Image",
+    uniqueName: "my-test-image",
+    contentType: "image/jpeg",
+    extension: ".jpg",
     tags: [{ name: "name", value: "value" }],
   });
 
@@ -115,11 +124,13 @@ const BundlrUpload = async ({ blob }: BundlrUploadProps) => {
 
   //NEED A REAL SIGNER TO RUN THE SIGNER PARTS
 
-  const privateKey = process.env.DEV_PRIVATE_KEY;
-  if (!privateKey) throw new Error("SHOP_PRIVATE_KEY not found");
-  const keypair = Keypair.fromSecretKey(base58.decode(privateKey));
-
-  //const signer: Signer =
+  // const privateKey = process.env.DEV_PRIVATE_KEY;
+  // if (!privateKey) throw new Error("DEV_PRIVATE_KEY not found");
+  // const keypair = Keypair.fromSecretKey(base58.decode(privateKey));
+  // const keypairSigner: KeypairSigner = {
+  //   publicKey: keypair.publicKey,
+  //   secretKey: keypair.secretKey,
+  // };
 
   // Devnet Bundlr address
   const BUNDLR_ADDRESS = "https://devnet.bundlr.network";
@@ -128,13 +139,26 @@ const BundlrUpload = async ({ blob }: BundlrUploadProps) => {
 
   // Connection endpoint, switch to a mainnet RPC if using mainnet
   const ENDPOINT = clusterApiUrl("devnet");
+  if (!wallet.publicKey) throw new Error("DEV_PRIVATE_KEY not found");
+  if (!wallet.signMessage) throw new Error("DEV_PRIVATE_KEY not found");
+  if (!wallet.signTransaction) throw new Error("DEV_PRIVATE_KEY not found");
+  if (!wallet.signAllTransactions) throw new Error("DEV_PRIVATE_KEY not found");
+
+  const test = publicKey(wallet.publicKey.toBase58());
+
+  const signer: IdentitySigner = {
+    publicKey: new PublicKey(test2),
+    signMessage: wallet.signMessage,
+    signTransaction: wallet.signTransaction,
+    signAllTransactions: wallet.signAllTransactions,
+  };
 
   const bundlerUploaderOptions = {
     address: BUNDLR_ADDRESS,
     timeout: 60000, //number for timeout
     providerUrl: ENDPOINT,
     priceMultiplier: 1, // 1 is standard - this payment multiple is a fee to store data ahead of others
-    //payer: signer,
+    payer: signer,
   };
 
   const bundlerUploadTest = createBundlrUploader(umi, bundlerUploaderOptions);
@@ -148,7 +172,6 @@ const BundlrUpload = async ({ blob }: BundlrUploadProps) => {
 
   const myUris = bundlerUploadTest.upload([genericFile]);
 
-  const testst = await umi;
   //UPDATE TO UMI FRAMEWORK
 
   // NFT metadata
