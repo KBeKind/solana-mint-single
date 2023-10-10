@@ -59,7 +59,7 @@ const BundlrUpload = async ({ blob }: BundlrUploadProps) => {
 
   //   const signTransaction = wallet.signTransaction
   //   const signAllTransactions = wallet.signAllTransactions
-  const pubKeyString: PublicKey = publicKey(wallet.publicKey.toBase58());
+  //   const pubKeyString: PublicKey = publicKey(wallet.publicKey.toBase58());
 
   // const signer: Signer = {
   //   publicKey: pubKeyString,
