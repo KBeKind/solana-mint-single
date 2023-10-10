@@ -7,7 +7,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import ReceiptImageUploadForm from "@/components/ReceiptImageUploadForm";
 import ClientUpload from "@/components/ClientUpload";
-import BundlrUpload from "@/components/BundlrUpload";
+import BundlrUpload from "@/app/BundlrUpload";
 
 import { WalletNotConnectedError } from "@solana/wallet-adapter-base";
 import {
