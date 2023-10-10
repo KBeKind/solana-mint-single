@@ -1,30 +1,25 @@
 import {
-  bundlrStorage,
-  IdentitySigner,
-  keypairIdentity,
-  Metaplex,
-  toMetaplexFile,
-  KeypairSigner,
-  Signer,
+  createGenericFile,
+  publicKey,
   PublicKey,
-} from "@metaplex-foundation/js";
-import { clusterApiUrl, Connection, Keypair } from "@solana/web3.js";
-import base58 from "bs58";
-import * as dotenv from "dotenv";
-import * as fs from "fs";
+  Signer,
+  Transaction,
+} from "@metaplex-foundation/umi";
+
 import {
   createBundlrUploader,
   bundlrUploader,
 } from "@metaplex-foundation/umi-uploader-bundlr";
+
+import { toMetaplexFile } from "@metaplex-foundation/js";
+import { clusterApiUrl, Connection, Keypair } from "@solana/web3.js";
+import base58 from "bs58";
+import * as dotenv from "dotenv";
+import * as fs from "fs";
+
 import { createUmi } from "@metaplex-foundation/umi-bundle-defaults";
-import { createGenericFile, publicKey } from "@metaplex-foundation/umi";
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
-import { WalletAdapterCompatibleStandardWallet } from "@solana/wallet-adapter-base";
-import {
-  fromWeb3JsKeypair,
-  fromWeb3JsPublicKey,
-  toWeb3JsPublicKey,
-} from "@metaplex-foundation/umi-web3js-adapters";
+import * as UmiWeb3Adapters from "@metaplex-foundation/umi-web3js-adapters";
 
 const { connection } = useConnection();
 const wallet = useWallet();
@@ -124,14 +119,6 @@ const BundlrUpload = async ({ blob }: BundlrUploadProps) => {
 
   //NEED A REAL SIGNER TO RUN THE SIGNER PARTS
 
-  // const privateKey = process.env.DEV_PRIVATE_KEY;
-  // if (!privateKey) throw new Error("DEV_PRIVATE_KEY not found");
-  // const keypair = Keypair.fromSecretKey(base58.decode(privateKey));
-  // const keypairSigner: KeypairSigner = {
-  //   publicKey: keypair.publicKey,
-  //   secretKey: keypair.secretKey,
-  // };
-
   // Devnet Bundlr address
   const BUNDLR_ADDRESS = "https://devnet.bundlr.network";
   // Mainnet Bundlr address, uncomment if using mainnet
@@ -139,18 +126,36 @@ const BundlrUpload = async ({ blob }: BundlrUploadProps) => {
 
   // Connection endpoint, switch to a mainnet RPC if using mainnet
   const ENDPOINT = clusterApiUrl("devnet");
-  if (!wallet.publicKey) throw new Error("DEV_PRIVATE_KEY not found");
-  if (!wallet.signMessage) throw new Error("DEV_PRIVATE_KEY not found");
-  if (!wallet.signTransaction) throw new Error("DEV_PRIVATE_KEY not found");
-  if (!wallet.signAllTransactions) throw new Error("DEV_PRIVATE_KEY not found");
+  //if (!wallet.publicKey) throw new Error("DEV_PRIVATE_KEY not found");
+  //if (!wallet.signMessage) throw new Error("DEV_PRIVATE_KEY not found");
+  //if (!wallet.signTransaction) throw new Error("DEV_PRIVATE_KEY not found");
+  //if (!wallet.signAllTransactions) throw new Error("DEV_PRIVATE_KEY not found");
 
-  const test = publicKey(wallet.publicKey.toBase58());
+  // const pubKeyString: PublicKey = publicKey(wallet.publicKey.toBase58());
 
-  const signer: IdentitySigner = {
-    publicKey: new PublicKey(test2),
+  //const test = UmiWeb3Adapters.fromWeb3JsPublicKey(wallet.publicKey);
+
+  const key = process.env;
+
+  const keypair = Keypair.fromSecretKey(Uint8Array.from(key));
+
+  // interface Signer {
+  //     /** The public key of the Signer. */
+  //     readonly publicKey: PublicKey;
+  //     /** Signs the given message. */
+  //     readonly signMessage: (message: Uint8Array) => Promise<Uint8Array>;
+  //     /** Signs the given transaction. */
+  //     readonly signTransaction: (transaction: Transaction) => Promise<Transaction>;
+  //     /** Signs all the given transactions at once. */
+  //     readonly signAllTransactions: (transactions: Transaction[]) => Promise<Transaction[]>;
+  // }
+
+  const signer: Signer = {
+    publicKey: test,
     signMessage: wallet.signMessage,
-    signTransaction: wallet.signTransaction,
-    signAllTransactions: wallet.signAllTransactions,
+    signTransaction: (transaction: Transaction) => Promise<Transaction>,
+    signAllTransactions: (transactions: Transaction[]) =>
+      Promise<Transaction[]>,
   };
 
   const bundlerUploaderOptions = {
@@ -185,8 +190,6 @@ const BundlrUpload = async ({ blob }: BundlrUploadProps) => {
 
   async function main() {
     // Get the shop keypair from the environment variable
-
-    const connection = new Connection(ENDPOINT);
 
     const imageBuffer = fs.readFileSync(NFT_IMAGE_PATH);
     const file = toMetaplexFile(imageBuffer, NFT_FILE_NAME);
