@@ -1,12 +1,6 @@
 import { createUmi } from "@metaplex-foundation/umi-bundle-defaults";
 
-import {
-  createGenericFile,
-  PublicKey,
-  publicKey,
-  Signer,
-  Transaction,
-} from "@metaplex-foundation/umi";
+import { createGenericFile, Signer } from "@metaplex-foundation/umi";
 import { clusterApiUrl } from "@solana/web3.js";
 
 import { useConnection, useWallet } from "@solana/wallet-adapter-react";
@@ -23,6 +17,7 @@ import {
 
 //const { connection } = useConnection();
 const wallet = useWallet();
+//const connection = new Web3.Connection(Web3.clusterApiUrl("devnet"));
 
 interface BundlrUploadProps {
   blob: Blob;

@@ -7,7 +7,6 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import ReceiptImageUploadForm from "@/components/ReceiptImageUploadForm";
 import ClientUpload from "@/components/ClientUpload";
-import BundlrUpload from "@/app/BundlrUpload";
 
 import { WalletNotConnectedError } from "@solana/wallet-adapter-base";
 import {
@@ -31,6 +30,14 @@ const Home = () => {
   // passing two callback functions into RecieptForm
   return (
     <div>
+      <Link
+        className="m-2 bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+        href="/mintTokenTest"
+      >
+        Mint Token Test Page
+      </Link>
+      <hr className="m-5" />
+      <br />
       <div className="mx-5">
         <WalletMultiButton />
         <WalletDisconnectButton />
@@ -63,5 +70,7 @@ const Home = () => {
     </div>
   );
 };
-<BundlrUpload blob={blob} />;
+{
+  //<BundlrUpload blob={blob} />;
+}
 export default Home;
